@@ -1,4 +1,4 @@
-# programacion_2026
-Nombre: Francisco Antonio Canul Ku, 
-Correo: canulantonio04@gmail.com
-Matricula: 25216349
+```text
+Nombre:    Francisco Antonio Canul Ku
+Matrícula: 25216349
+Correo:    canulantonio04@gmail.com
