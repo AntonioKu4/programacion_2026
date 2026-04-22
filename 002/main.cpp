@@ -1,73 +1,65 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 #include <ctime>
 
 using namespace std;
 
-// Clase para representar un mensaje individual
 class Mensaje {
 public:
-    string rol; // "user" o "assistant"
-    string contenido;
-    string timestamp;
-
-    Mensaje(string r, string c) : rol(r), contenido(c) {
-        // Generar un timestamp básico
-        time_t ahora = time(0);
-        timestamp = ctime(&ahora);
-    }
+    string rol;
+    string texto;
+    Mensaje(string r, string t) : rol(r), texto(t) {}
 };
 
-// Clase para gestionar la conversación
 class Conversacion {
 private:
     vector<Mensaje> historial;
-
 public:
-    void agregarMensaje(string rol, string contenido) {
-        historial.push_back(Mensaje(rol, contenido));
+    void agregar(string r, string t) {
+        historial.push_back(Mensaje(r, t));
     }
 
-    void mostrarHistorial() {
-        cout << "\n--- Historial de Conversacion ---" << endl;
-        for (const auto& m : historial) {
-            cout << "[" << m.rol << "]: " << m.contenido << endl;
+    void guardarEnJSON() {
+        // Formato de nombre: charla_20260422.json
+        time_t ahora = time(0);
+        string nombreArchivo = "002/charla_" + to_string(ahora) + ".json";
+
+        ofstream archivo(nombreArchivo);
+        archivo << "{\n  \"conversacion\": [\n";
+        for (size_t i = 0; i < historial.size(); i++) {
+            archivo << "    {\"rol\": \"" << historial[i].rol << "\", \"texto\": \"" << historial[i].texto << "\"}";
+            if (i < historial.size() - 1) archivo << ",";
+            archivo << "\n";
         }
-    }
-
-    // Por ahora, solo repite lo que el usuario dice (simulación)
-    string obtenerRespuestaSimulada(string prompt) {
-        return "Respuesta simulada: " + prompt;
+        archivo << "  ]\n}";
+        archivo.close();
+        cout << "\n[SISTEMA] Historial guardado en: " << nombreArchivo << endl;
     }
 };
 
 int main() {
-    Conversacion miChat;
+    Conversacion chat;
     string usuarioInput;
 
-    cout << "Bienvenido al Chatbot Terminal (Reto 02)" << endl;
-    cout << "Escribe algo (o 'salir' para terminar): " << endl;
+    cout << "--- Chatbot Terminal UADY (Reto 002) ---" << endl;
+    cout << "Escribe 'salir' para terminar y guardar." << endl;
 
     while (true) {
-        cout << "> ";
+        cout << "\nTu: ";
         getline(cin, usuarioInput);
 
         if (usuarioInput == "salir") break;
 
-        // 1. Guardar mensaje del usuario
-        miChat.agregarMensaje("user", usuarioInput);
+        chat.agregar("user", usuarioInput);
 
-        // 2. Obtener respuesta (Simulada por ahora)
-        string respuesta = miChat.obtenerRespuestaSimulada(usuarioInput);
-        
-        // 3. Guardar respuesta del sistema
-        miChat.agregarMensaje("assistant", respuesta);
-
-        cout << "Sistema: " << respuesta << endl;
+        // Simulación de respuesta (el siguiente paso sería libcurl)
+        string respuesta = "Entendido, Toni. Procesando: " + usuarioInput;
+        cout << "Gemini: " << respuesta << endl;
+        chat.agregar("model", respuesta);
     }
 
-    miChat.mostrarHistorial();
-
+    chat.guardarEnJSON();
     return 0;
 }
